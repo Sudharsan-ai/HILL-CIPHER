@@ -34,44 +34,80 @@ STEP-4: Multiply the two matrices to obtain the cipher text of length three.
 STEP-5: Combine all these groups to get the complete cipher text.
 
 ## PROGRAM 
-~~~
-text = input("Enter plaintext: ").upper()
-key = []
+```
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#define S 2
 
-print("Enter 3x3 key matrix:")
-for i in range(3):
-    row = list(map(int, input().split()))
-    key.append(row)
+int K[S][S] = {{3,3},{2,5}};
 
-print("\nKey Matrix:")
-for r in key:
-    print(r)
+int modInv(int a, int m) 
+{
+    a %= m;
+    for (int x = 1; x < m; x++) 
+        if ((a * x) % m == 1) return x;
+    return -1;
+}
 
-while len(text) % 3 != 0:
-    text += 'X'
+int det(int M[S][S]) { return (M[0][0]*M[1][1] - M[0][1]*M[1][0]) % 26; }
 
-print("Processed Text:", text)
+void invMat(int M[S][S], int I[S][S])
+{
+    int d = det(M); 
+    if (d < 0) d += 26;
+    int di = modInv(d, 26); 
+    if (di == -1) exit(0);
+    I[0][0] =  M[1][1]*di % 26;
+    I[0][1] = -M[0][1]*di % 26;
+    I[1][0] = -M[1][0]*di % 26;
+    I[1][1] =  M[0][0]*di % 26;
 
-cipher = ""
+    for (int i = 0; i < S; i++) 
+        for (int j = 0; j < S; j++)
+            if (I[i][j] < 0) I[i][j] += 26;
+}
 
-for i in range(0, len(text), 3):
-    pt = [ord(text[i+j]) - 65 for j in range(3)]
-    ct = [0, 0, 0]
+void mult(int M[S][S], int in[], int out[]) 
+{
+    for (int i = 0; i < S; i++) 
+    {
+        out[i] = 0;
+        for (int j = 0; j < S; j++) out[i] += M[i][j]*in[j];
+        out[i] %= 26;
+    }
+}
 
-    print("\nBlock:", text[i:i+3])
+void hill(char *in, char *out, int enc) 
+{
+    int len = strlen(in), V[S], R[S], KM[S][S];
+    if (len % S != 0) { // padding if not multiple of S
+        in[len++] = 'X';
+        in[len] = '\0';
+    }
+    if (!enc) invMat(K, KM); 
+    else memcpy(KM, K, sizeof(K));
+    for (int i = 0; i < len; i += S) 
+    {
+        for (int j = 0; j < S; j++) V[j] = in[i + j] - 'A';
+        mult(KM, V, R);
+        for (int j = 0; j < S; j++) out[i + j] = R[j] + 'A';
+    }
+    out[len] = 0;
+}
 
-    for r in range(3):
-        for c in range(3):
-            ct[r] += key[r][c] * pt[c]
-        ct[r] %= 26
-
-    print("Numeric:", ct)
-
-    for num in ct:
-        cipher += chr(num + 65)
-
-print("\nFinal Cipher Text:", cipher)
-~~~
+int main() {
+    char msg[100], enc[100], dec[100];
+    printf("Enter your name: ");
+    fgets(msg, sizeof(msg), stdin);
+    msg[strcspn(msg, "\n")] = 0;
+    hill(msg, enc, 1); 
+    printf("Encrypted: %s\n", enc);
+    hill(enc, dec, 0); 
+    printf("Decrypted: %s\n", dec);
+    return 0;
+}
+```
 ## OUTPUT
 <img width="1441" height="860" alt="output" src="https://github.com/user-attachments/assets/c5f286a0-2198-4d84-a94b-5dab6379584e" />
 
