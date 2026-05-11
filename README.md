@@ -109,7 +109,7 @@ int main() {
 }
 ```
 ## OUTPUT
-<img width="1441" height="860" alt="output" src="https://github.com/user-attachments/assets/c5f286a0-2198-4d84-a94b-5dab6379584e" />
+<img width="1691" height="843" alt="image" src="https://github.com/user-attachments/assets/d5042bd0-8e8f-47ba-b06d-0fde5f362a6a" />
 
 ## RESULT
 Thus the implementation of hill cipher had been executed successfully.
